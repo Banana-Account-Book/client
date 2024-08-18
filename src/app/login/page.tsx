@@ -2,8 +2,15 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import styles from "./login.module.css";
-import axios from "@/lib/axios";
-import { useEffect } from "react";
+import axios from "@/lib/api";
+import { Suspense, useEffect } from "react";
+
+enum Providers {
+  kakao = "카카오",
+  naver = "네이버",
+  google = "구글",
+}
+const providers = Object.keys(Providers);
 
 const Login = () => {
   const route = useRouter();
@@ -11,14 +18,24 @@ const Login = () => {
 
   useEffect(() => {
     const code = params.get("code");
-    if (!code) return;
-    login(code);
+    const provider = params.get("provider");
+    if (!code || !provider) return;
+    login(code, provider);
   }, []);
 
-  const login = async (code: string) => {
+  const redirectFromProvider = async (provider: string) => {
     try {
-      await axios.post("/auth/kakao", {
-        code: code,
+      const response = await axios.get(`/auth/${provider}`);
+      route.push(response.data.url);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  const login = async (code: string, provider: string) => {
+    try {
+      await axios.post(`/auth/${provider}`, {
+        code,
       });
       route.push("/");
     } catch (error) {
@@ -28,18 +45,18 @@ const Login = () => {
 
   return (
     <main className={styles.main}>
-      <button
-        onClick={async () => {
-          try {
-            const response = await axios.get("/auth/kakao");
-            route.push(response.data.url);
-          } catch (error) {
-            console.error("Error fetching data:", error);
-          }
-        }}
-      >
-        카카오 로그인
-      </button>
+      <Suspense>
+        {providers.map((provider) => {
+          return (
+            <button
+              key={provider}
+              onClick={() => redirectFromProvider(provider)}
+            >
+              {provider} 로그인
+            </button>
+          );
+        })}
+      </Suspense>
     </main>
   );
 };
