@@ -21,7 +21,7 @@ const navItems = [
   },
 ];
 
-const Nav = () => {
+export const Nav = () => {
   return (
     <nav className={styles.nav}>
       <div className={styles.navItems}>
@@ -34,5 +34,3 @@ const Nav = () => {
     </nav>
   );
 };
-
-export default Nav;
