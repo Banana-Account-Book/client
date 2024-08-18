@@ -12,7 +12,7 @@ enum Providers {
 }
 const providers = Object.keys(Providers);
 
-const Login = () => {
+const LoginContent = () => {
   const route = useRouter();
   const params = useSearchParams();
 
@@ -45,19 +45,20 @@ const Login = () => {
 
   return (
     <main className={styles.main}>
-      <Suspense>
-        {providers.map((provider) => {
-          return (
-            <button
-              key={provider}
-              onClick={() => redirectFromProvider(provider)}
-            >
-              {provider} 로그인
-            </button>
-          );
-        })}
-      </Suspense>
+      {providers.map((provider) => (
+        <button key={provider} onClick={() => redirectFromProvider(provider)}>
+          {provider} 로그인
+        </button>
+      ))}
     </main>
+  );
+};
+
+const Login = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginContent />
+    </Suspense>
   );
 };
 
